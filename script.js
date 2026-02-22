@@ -1,5 +1,12 @@
 // ===== Header Scroll Effect =====
 const header = document.getElementById('header');
+const ticker = document.querySelector('.areas-ticker-bar');
+
+function updateTickerPosition() {
+  if (header && ticker) {
+    ticker.style.top = header.offsetHeight + 'px';
+  }
+}
 
 window.addEventListener('scroll', () => {
   if (window.scrollY > 20) {
@@ -7,7 +14,12 @@ window.addEventListener('scroll', () => {
   } else {
     header.classList.remove('scrolled');
   }
+  updateTickerPosition();
 });
+
+window.addEventListener('resize', updateTickerPosition);
+window.addEventListener('load', updateTickerPosition);
+updateTickerPosition();
 
 // ===== Mobile Menu Toggle =====
 const mobileMenuBtn = document.getElementById('mobileMenuBtn');
@@ -17,14 +29,15 @@ const hamburger = mobileMenuBtn.querySelector('.hamburger');
 mobileMenuBtn.addEventListener('click', () => {
   mobileMenu.classList.toggle('active');
   hamburger.classList.toggle('active');
+  updateTickerPosition();
 });
 
-// Close mobile menu when clicking a link
 const mobileLinks = mobileMenu.querySelectorAll('.nav-link');
 mobileLinks.forEach(link => {
   link.addEventListener('click', () => {
     mobileMenu.classList.remove('active');
     hamburger.classList.remove('active');
+    updateTickerPosition();
   });
 });
 
@@ -34,15 +47,12 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     e.preventDefault();
     const target = document.querySelector(this.getAttribute('href'));
     if (target) {
-      target.scrollIntoView({
-        behavior: 'smooth',
-        block: 'start'
-      });
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   });
 });
 
-// ===== Special Offer Banner - Discount Button =====
+// ===== Special Offer Banner =====
 const offerBanner = document.getElementById('btnDescuento');
 if (offerBanner) {
   offerBanner.addEventListener('click', () => {
@@ -50,9 +60,6 @@ if (offerBanner) {
     if (servicesSection) {
       servicesSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
-    setTimeout(() => {
-      alert('🎉 Your 40% discount has been applied! Book any service below to redeem it.');
-    }, 600);
   });
 }
 
@@ -72,7 +79,7 @@ const galleryImages = [
   'images/photo13.jpg',
   'images/photo14.jpg',
   'images/photo15.jpg',
-  'images/photo17.jpg',
+  'images/photo16.jpg',
 ];
 
 let currentImageIndex = 0;
@@ -81,7 +88,6 @@ const thumbnailsContainer = document.getElementById('thumbnails');
 const prevBtn = document.getElementById('prevBtn');
 const nextBtn = document.getElementById('nextBtn');
 
-// Generate thumbnails
 function generateThumbnails() {
   galleryImages.forEach((src, index) => {
     const thumbnail = document.createElement('div');
@@ -92,71 +98,44 @@ function generateThumbnails() {
   });
 }
 
-// Go to specific image
 function goToImage(index) {
   currentImageIndex = index;
   updateCarousel();
 }
 
-// Update carousel display
 function updateCarousel() {
-  // Update main image with fade effect
   mainImage.style.opacity = '0';
   setTimeout(() => {
     mainImage.src = galleryImages[currentImageIndex];
     mainImage.style.opacity = '1';
   }, 150);
-  
-  // Update thumbnails
   const thumbnails = thumbnailsContainer.querySelectorAll('.thumbnail');
   thumbnails.forEach((thumb, index) => {
-    if (index === currentImageIndex) {
-      thumb.classList.add('active');
-    } else {
-      thumb.classList.remove('active');
-    }
+    thumb.classList.toggle('active', index === currentImageIndex);
   });
 }
 
-// Previous image
 function prevImage() {
-  currentImageIndex = currentImageIndex === 0 
-    ? galleryImages.length - 1 
-    : currentImageIndex - 1;
+  currentImageIndex = currentImageIndex === 0 ? galleryImages.length - 1 : currentImageIndex - 1;
   updateCarousel();
 }
 
-// Next image
 function nextImage() {
-  currentImageIndex = currentImageIndex === galleryImages.length - 1 
-    ? 0 
-    : currentImageIndex + 1;
+  currentImageIndex = currentImageIndex === galleryImages.length - 1 ? 0 : currentImageIndex + 1;
   updateCarousel();
 }
 
-// Event listeners for carousel
 prevBtn.addEventListener('click', prevImage);
 nextBtn.addEventListener('click', nextImage);
 
-// Keyboard navigation
 document.addEventListener('keydown', (e) => {
-  if (e.key === 'ArrowLeft') {
-    prevImage();
-  } else if (e.key === 'ArrowRight') {
-    nextImage();
-  }
+  if (e.key === 'ArrowLeft') prevImage();
+  else if (e.key === 'ArrowRight') nextImage();
 });
 
-// Initialize carousel
 generateThumbnails();
 
-// ===== Intersection Observer for Animations =====
-const observerOptions = {
-  root: null,
-  rootMargin: '0px',
-  threshold: 0.1
-};
-
+// ===== Scroll Animations =====
 const observer = new IntersectionObserver((entries) => {
   entries.forEach(entry => {
     if (entry.isIntersecting) {
@@ -164,9 +143,6 @@ const observer = new IntersectionObserver((entries) => {
       observer.unobserve(entry.target);
     }
   });
-}, observerOptions);
+}, { root: null, rootMargin: '0px', threshold: 0.1 });
 
-// Observe elements for scroll animations
-document.querySelectorAll('.feature-card, .service-card').forEach(el => {
-  observer.observe(el);
-});
+document.querySelectorAll('.feature-card, .service-card').forEach(el => observer.observe(el));
